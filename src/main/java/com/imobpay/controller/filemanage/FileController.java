@@ -15,15 +15,16 @@ import java.util.List;
 public class FileController {
     FileService fileService;
 
-    @RequestMapping("/page")
-    public String page(ModelMap model) {
-        return "filemanage/filemanageList";
-    }
-
     @ResponseBody
     @RequestMapping("/queryFileAsList")
     public List<MyFile> queryFileAsList(MyFile file) {
-        return fileService.getFile(file.getFilepath());
+        return fileService.getFile(file);
+    }
+
+    @ResponseBody
+    @RequestMapping("/getContent.ajax")
+    public String getContent(MyFile file) {
+        return fileService.getContent(file);
     }
 
     @Resource

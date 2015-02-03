@@ -2,7 +2,10 @@
 <html>
 <script src="/jslib/ztree/js/jquery-1.4.4.min.js"></script>
 <script src="/jslib/ztree/js/jquery.ztree.all-3.5.min.js"></script>
+<script src="/jslib/ckeditor/ckeditor.js"></script>
 <link href="/jslib/ztree/css/zTreeStyle/zTreeStyle.css" rel="stylesheet" type="text/css">
+
+<link rel="stylesheet" href="sample.css">
 <script>
     var setting = {
         async: {
@@ -32,6 +35,11 @@
                 } else if (treeNode && !treeNode.noR) {
                     filetree.selectNode(treeNode);
                     showRMenu("node", event.clientX, event.clientY);
+                }
+            },
+            onDblClick: function(event, treeId, treeNode){
+                if(!treeNode.isParent){
+                    getcontent(treeNode);
                 }
             }
         }
@@ -88,11 +96,28 @@
         hideRMenu();
         $.fn.zTree.init($("#filetree"), setting);
     }
+
+    var getcontent = function (treeNode) {
+        $.post("fileManage/getContent.ajax?rnd=" + new Date().getTime(),
+                {
+                    filename: treeNode.filename,
+                    filetype: treeNode.filetype,
+                    filepath: treeNode.filepath
+                }, function (msg) {
+                    myeditor.setData(msg);
+                    //myeditor.insertText(msg);
+                });
+    }
     $(document).ready(function () {
         $.fn.zTree.init($("#filetree"), setting);
         filetree = $.fn.zTree.getZTreeObj("filetree");
         rMenu = $("#rMenu");
 
+        myeditor =  CKEDITOR.replace( 'editor',{
+            language: 'zh-cn',
+            height:'450px',
+            width:'85%'
+        });
     });
 </script>
 <style type="text/css">
@@ -109,15 +134,18 @@
         margin: 0;padding: 0;border: 0;outline: 0;font-weight: inherit;font-style: inherit;font-size: 100%;font-family: inherit;vertical-align: baseline;
     }
 
-    ul.ztree {margin-top: 10px;border: 1px solid #617775;background: #f0f6e4;width:350px;height:550px;overflow-y:scroll;overflow-x:auto;}
+    ul.ztree {margin-top: 0px;border: 1px solid #617775;background: #f0f6e4;width:350px;height:550px;overflow-y:scroll;overflow-x:auto;}
     ul.log {border: 1px solid #617775;background: #f0f6e4;width:300px;height:170px;overflow: hidden;}
     ul.log.small {height:45px;}
     ul.log li {color: #666666;list-style: none;padding-left: 10px;}
     ul.log li.dark {background-color: #E3E3E3;}
 </style>
 <body>
-<div>
+<div style="float: left;width:30%">
     <ul id="filetree" class="ztree"></ul>
+</div>
+<div style="float: left;width:70%">
+    <textarea id="editor" name="editor"></textarea>
 </div>
 <div id="rMenu">
     <ul>
